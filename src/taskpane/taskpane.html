@@ -20,12 +20,17 @@
         <div class="input-box">
             <input type="text" id="user-input" placeholder="Type your message..." />
             <div id="seldiv">
-                <button id="selbtn" onclick="toggleSelect()">↑</button>
                 <div id="resSel" style="display: none;">
-                    <select name="Response type" id="response-type">
-                        <option value="true">In-document response</option>
-                        <option value="false">Chat response</option>
-                    </select>
+                    <div>
+                        <label>
+                            <input type="radio" name="response-type" value="true" /> In-document response
+                        </label>
+                    </div>
+                    <div>
+                        <label>
+                            <input type="radio" name="response-type" value="false" /> Chat response
+                        </label>
+                    </div>
                 </div>
             </div>
             <button id="submit">Send</button>
@@ -35,13 +40,5 @@
 <script type="module" src="taskpane.js"></script>
 <script src="bundle.js"></script>
 <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
-<script>
-    function toggleSelect() {
-        const resSel = document.getElementById("resSel");
-        const selbtn = document.getElementById("selbtn");
-        resSel.style.display = resSel.style.display === "block" ? "none" : "block";
-        selbtn.style.display = selbtn.style.display === "none" ? "block" : "none";
-    }
-</script>
 
 </html>
