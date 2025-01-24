@@ -4,7 +4,14 @@
   ],
   "hints": {
     "disown-opener": "off",
-    "no-inline-styles": "off"
+    "no-inline-styles": "off",
+    "axe/forms": [
+      "default",
+      {
+        "select-name": "off"
+      }
+    ],
+    "css-prefix-order": "off"
   },
   "browserslist": [
     "defaults",

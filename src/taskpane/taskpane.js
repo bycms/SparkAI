@@ -11,7 +11,7 @@ Office.onReady((info) => {
   }
 });
 
-export async function run() {
+/*export async function run() {
   return Word.run(async (context) => {
     
     // code here
@@ -24,7 +24,7 @@ export async function run() {
 
     await context.sync();
   });
-}
+}*/
 
 
 const ws = window.WebSocket; 
