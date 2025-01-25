@@ -12,7 +12,7 @@ body {
     max-width: 1800px; /* Limit the maximum width */
     height: 87vh;
     margin-top: 10px; /* Center the container */
-    background: #fff;
+    background: #f9f9f9;
     border-radius: 8px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
     overflow: hidden;
@@ -41,11 +41,8 @@ body {
 }
 
 .sysmsg {
-    margin: 10px 0;
     padding: 10px;
-    background-color: #e1f5fe;
-    border-radius: 8px;
-    color: #0078d4;
+    color: #333;
     animation: fadeIn 0.5s ease;
 }
 
@@ -57,7 +54,7 @@ body {
 .usermsg {
     align-self: flex-end; /* Align user messages to the right */
     margin: 10px 0;
-    padding: 10px;
+    padding: 6px;
     max-width: 70%;
     background: #0078d4;
     color: #fff;
@@ -88,9 +85,9 @@ body {
 }
 
 #insertBtn {
-    width: 70px;
-    height: 30px;
-    font-size: 14px;
+    width: 60px;
+    height: 26px;
+    font-size: 12px;
     color: white;
     border: none;
     border-radius: 7px;
@@ -99,6 +96,22 @@ body {
 
 #insertBtn:hover {
     background: linear-gradient(to right, rgb(51, 95, 153), rgb(105, 32, 134));
+}
+
+#editBtn {
+    position: relative;
+    left: 4px;
+    width: 60px;
+    height: 26px;
+    font-size: 12px;
+    background-color: white;
+    border: 2px solid rgb(31, 75, 133);
+    border-radius: 7px;
+}
+
+#editBtn:hover {
+    border-color: rgb(51, 95, 153);
+    background-color: #ddd;
 }
 
 .input-box {

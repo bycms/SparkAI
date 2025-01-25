@@ -1,24 +1,4 @@
-/*Office.onReady((info) => {
-  if (info.host === Office.HostType.Word) {
-
-  }
-});*/
-
-async function tryCatch(callback) {
-    try {
-        await callback();
-    } catch (error) {
-        // Note: In a production add-in, you'd want to notify the user through your add-in's UI.
-        console.error(error);
-    }
-}
-
-// document.getElementById("fnbtn").onclick =()=> tryCatch(insertP);
-
-async function insertP() {
-    
-}
-
+/********************Requires variables ***************/
 const ws = window.WebSocket; 
 const crypto = require('crypto-browserify');
 const markdownit = require('markdown-it');
@@ -28,9 +8,11 @@ const chatarea = document.getElementById("chatcontents");
 const inputbox = document.getElementById("user-input");
 const loading = document.getElementById("loading");
 const resCtrls = document.getElementById("responseCtrls");
+const insertBtn = document.getElementById("insertBtn");
 
 let currentMessage = null; // Track the ongoing bot message
 let ongoingContent = ""; // Accumulate content for streaming messages
+let chatmode = 0;
 
 document.addEventListener('keydown', function(ev) {
     if (ev.key === "Enter") {
@@ -38,6 +20,23 @@ document.addEventListener('keydown', function(ev) {
     }
 });
 
+/********************Word API ***************/
+async function tryCatch(callback) {
+    try {
+        await callback();
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+async function insertParagraph() {
+    await Word.run (async (context) => {
+        let body = context.document.body;
+        body.insertHtml(md.render(ongoingContent), Word.InsertLocation.end);
+    });
+}
+
+/********************New messages ***************/
 function newMsg(role, msgContent, isStream = false) {
     if (role === "bot" && isStream && currentMessage) {
         // Append content to the ongoing content
@@ -77,15 +76,18 @@ function resetResponseTimeout() {
         loading.style.opacity = 0;
         loading.style.animation = "none";
     }, 3500); // Adjust timeout duration as needed
+    chatmode = 0;
 }
 
+
+/********************Spark v1.1 API call ***************/
 document.getElementById("submit").onclick = () => {
     if (inputbox.value.trim() !== "") {
         newMsg("user", inputbox.value);
         loading.style.opacity = 1;
         loading.style.animation = "dots 1.5s infinite";
         history += "User: " + inputbox.value + "\n";
-        call(inputbox.value, history);
+        call(inputbox.value, history, chatmode);
         inputbox.value = "";
     }
 }
@@ -102,9 +104,8 @@ var socket;
 let questionValue = '';
 let history = '';
  
-async function call(prompt, hist) {
+async function call(prompt, hist, mode) {
     currentMessage = null;
-    ongoingContent = "";
     resCtrls.style.display = "none";
     return new Promise((resolve, reject) => {
         const { host, path, APISecret, APIKey, APPID } = XFHX_AI;
@@ -116,6 +117,23 @@ async function call(prompt, hist) {
         const authorization = buff.toString('base64');
         const signUrl = `wss://${host}${path}?authorization=${authorization}&date=${encodeURIComponent(dateString)}&host=${host}`;
         socket = new ws(signUrl);
+        let cnt = '';
+
+        switch (mode) {
+            case 0: {
+                cnt = "You are an AI assistant designed to help users generate, edit, and summarize text passages in Microsoft Word. You're capable of creating bullet lists, numbered lists and tables. Here is the user's chat history: " + hist + " which you can ignore if it's empty. Your task is to provide a clear, accurate, and relevant response to the user's request, ensuring it aligns with their goals of text generation, editing, or summarization. Use the chat history to maintain context and deliver a response that is helpful, concise, and tailored to their needs."
+                                + "!CAUTION these following responses and their alikes are disallowed. 'I'm not accessible to the your history.' 'Hi, I'm ...(your name).' 'What would you like me to assist with?' 'Certainly! Below is the passage.'etc."
+                                + "If you really don't know how to deal with the user's prompt, write a passage about it. If still not possible, tell the user that you can't help with the prompt and apologize.";
+                ongoingContent = ""; 
+            }
+            case 1: {
+                cnt = "You are an AI assistant designed to help users generate, edit, and summarize text passages in Microsoft Word. You're capable of creating bullet lists, numbered lists and tables. Your task is to provide a clear, accurate, and relevant response to the user's request, ensuring it aligns with their goals of text generation, editing, or summarization. Use the chat history to maintain context and deliver a response that is helpful, concise, and tailored to their needs."
+                                + "!CAUTION these following responses and their alikes are disallowed. 'I'm not accessible to the your history.' 'Hi, I'm ...(your name).' 'Sure! Here's the edited passage.' 'Certainly! Below is the passage.'etc."
+                                + "You recently received an edit request, the original version is this: "
+                                + ongoingContent + "Please edit the text based on the request you will receive from the user.";
+                ongoingContent = "";
+            }
+        }
  
         socket.onopen = () => {
             console.log('WebSocket 连接成功');
@@ -124,16 +142,20 @@ async function call(prompt, hist) {
                 parameter: {
                     chat: {
                         domain: 'lite',
-                        temperature: 0.5,
-                        max_tokens: 1024,
+                        temperature: 0.6,
+                        max_tokens: 4096,
                     },
                 },
                 payload: {
                     message: {
                         text: [
                             {
+                                role: 'system',
+                                content: cnt,
+                            },
+                            {
                                 role: 'user',
-                                content: `You are an AI engaging in a conversation with a user. Here is the user's chat history: ${hist} The user has just sent this latest message: ${prompt} Your task is to provide a clear, accurate, and relevant response to the user's latest message based on the chat history.`,
+                                content: prompt,
                             },
                         ]
                     }
@@ -156,9 +178,18 @@ async function call(prompt, hist) {
         };
         
         socket.onclose = () => {
-            finalizeMessage(); // Ensure the message is finalized when the socket closes
             history += "AI: " + questionValue + "\n";
             questionValue = "";
         };
     });
+}
+
+/********************Button Functions **************************/
+insertBtn.onclick = () => tryCatch(insertParagraph);
+
+// "Edit"
+document.getElementById("editBtn").onclick = function() {
+    newMsg('sys', 'Please type how you want to edit the above text and press "Send". \n If you want to substitue your original text in Word, select it before you click Send.');
+    resCtrls.style.display = 'none';
+    chatmode = 1;
 }
