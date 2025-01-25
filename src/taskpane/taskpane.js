@@ -1,31 +1,23 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved. Licensed under the MIT license.
- * See LICENSE in the project root for license information.
- */
-
-/* global document, Office, Word */
-
-Office.onReady((info) => {
+/*Office.onReady((info) => {
   if (info.host === Office.HostType.Word) {
 
   }
-});
+});*/
 
-/*export async function run() {
-  return Word.run(async (context) => {
+async function tryCatch(callback) {
+    try {
+        await callback();
+    } catch (error) {
+        // Note: In a production add-in, you'd want to notify the user through your add-in's UI.
+        console.error(error);
+    }
+}
+
+// document.getElementById("fnbtn").onclick =()=> tryCatch(insertP);
+
+async function insertP() {
     
-    // code here
-
-    // insert a paragraph at the end of the document.
-    const paragraph = context.document.body.insertParagraph("Hello World", Word.InsertLocation.end);
-
-    // change the paragraph color to blue.
-    paragraph.font.color = "blue";
-
-    await context.sync();
-  });
-}*/
-
+}
 
 const ws = window.WebSocket; 
 const crypto = require('crypto-browserify');
@@ -35,6 +27,7 @@ const md = markdownit();
 const chatarea = document.getElementById("chatcontents");
 const inputbox = document.getElementById("user-input");
 const loading = document.getElementById("loading");
+const resCtrls = document.getElementById("responseCtrls");
 
 let currentMessage = null; // Track the ongoing bot message
 let ongoingContent = ""; // Accumulate content for streaming messages
@@ -80,16 +73,10 @@ let responseTimeout;
 function resetResponseTimeout() {
     clearTimeout(responseTimeout);
     responseTimeout = setTimeout(() => {
-        finalizeMessage(); // End the current streaming session
+        resCtrls.style.display = "block";
         loading.style.opacity = 0;
         loading.style.animation = "none";
     }, 3500); // Adjust timeout duration as needed
-}
-
-function finalizeMessage() {
-    // Whole response ends here
-    currentMessage = null;
-    ongoingContent = ""; // Reset accumulated content
 }
 
 document.getElementById("submit").onclick = () => {
@@ -116,6 +103,9 @@ let questionValue = '';
 let history = '';
  
 async function call(prompt, hist) {
+    currentMessage = null;
+    ongoingContent = "";
+    resCtrls.style.display = "none";
     return new Promise((resolve, reject) => {
         const { host, path, APISecret, APIKey, APPID } = XFHX_AI;
         const dateString = new Date().toGMTString();
