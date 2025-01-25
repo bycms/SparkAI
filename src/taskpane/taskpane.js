@@ -1,26 +1,37 @@
-/********************Requires variables ***************/
-const ws = window.WebSocket; 
+/******************** Constants and Variables ***************/
+const ws = window.WebSocket;
 const crypto = require('crypto-browserify');
 const markdownit = require('markdown-it');
 const md = markdownit();
 
+// DOM Elements
 const chatarea = document.getElementById("chatcontents");
 const inputbox = document.getElementById("user-input");
 const loading = document.getElementById("loading");
 const resCtrls = document.getElementById("responseCtrls");
 const insertBtn = document.getElementById("insertBtn");
 
+// State Variables
 let currentMessage = null; // Track the ongoing bot message
 let ongoingContent = ""; // Accumulate content for streaming messages
 let chatmode = 0;
 
+/******************** Event Listeners ***************/
 document.addEventListener('keydown', function(ev) {
     if (ev.key === "Enter") {
         document.getElementById("submit").click();
     }
 });
 
-/********************Word API ***************/
+insertBtn.onclick = () => tryCatch(insertParagraph);
+
+document.getElementById("editBtn").onclick = function() {
+    newMsg('sys', 'Please type how you want to edit the above text and press "Send". \n If you want to substitue your original text in Word, select it before you click Send.');
+    resCtrls.style.display = 'none';
+    chatmode = 1;
+}
+
+/******************** Helper Functions ***************/
 async function tryCatch(callback) {
     try {
         await callback();
@@ -30,13 +41,13 @@ async function tryCatch(callback) {
 }
 
 async function insertParagraph() {
-    await Word.run (async (context) => {
+    await Word.run(async (context) => {
         let body = context.document.body;
         body.insertHtml(md.render(ongoingContent), Word.InsertLocation.end);
     });
 }
 
-/********************New messages ***************/
+/******************** Message Handling ***************/
 function newMsg(role, msgContent, isStream = false) {
     if (role === "bot" && isStream && currentMessage) {
         // Append content to the ongoing content
@@ -79,8 +90,7 @@ function resetResponseTimeout() {
     chatmode = 0;
 }
 
-
-/********************Spark v1.1 API call ***************/
+/******************** API Call Functions ***************/
 document.getElementById("submit").onclick = () => {
     if (inputbox.value.trim() !== "") {
         newMsg("user", inputbox.value);
@@ -100,10 +110,11 @@ const XFHX_AI = {
     APISecret: 'NjI1ZmU1MzM1YmFmYTZiMDE0ZGQ0NmRk',
     APIKey: 'fa1260aea1e497a441fa91dbab66daa5'
 }
+
 var socket;
 let questionValue = '';
 let history = '';
- 
+
 async function call(prompt, hist, mode) {
     currentMessage = null;
     resCtrls.style.display = "none";
@@ -125,6 +136,7 @@ async function call(prompt, hist, mode) {
                                 + "!CAUTION these following responses and their alikes are disallowed. 'I'm not accessible to the your history.' 'Hi, I'm ...(your name).' 'What would you like me to assist with?' 'Certainly! Below is the passage.'etc."
                                 + "If you really don't know how to deal with the user's prompt, write a passage about it. If still not possible, tell the user that you can't help with the prompt and apologize.";
                 ongoingContent = ""; 
+                break;
             }
             case 1: {
                 cnt = "You are an AI assistant designed to help users generate, edit, and summarize text passages in Microsoft Word. You're capable of creating bullet lists, numbered lists and tables. Your task is to provide a clear, accurate, and relevant response to the user's request, ensuring it aligns with their goals of text generation, editing, or summarization. Use the chat history to maintain context and deliver a response that is helpful, concise, and tailored to their needs."
@@ -132,9 +144,10 @@ async function call(prompt, hist, mode) {
                                 + "You recently received an edit request, the original version is this: "
                                 + ongoingContent + "Please edit the text based on the request you will receive from the user.";
                 ongoingContent = "";
+                break;
             }
         }
- 
+
         socket.onopen = () => {
             console.log('WebSocket 连接成功');
             socket.send(JSON.stringify({
@@ -162,7 +175,7 @@ async function call(prompt, hist, mode) {
                 }
             }));
         };
-        
+
         socket.onmessage = (event) => {
             const obj = JSON.parse(event.data);
             resetResponseTimeout();
@@ -171,25 +184,15 @@ async function call(prompt, hist, mode) {
                 newMsg("bot", item.content, true); // Append content chunk by chunk
             });
         };
-        
+
         socket.onerror = (error) => {
             newMsg("sys", 'WebSocket error observed: ' + error);
             reject(error);
         };
-        
+
         socket.onclose = () => {
             history += "AI: " + questionValue + "\n";
             questionValue = "";
         };
     });
-}
-
-/********************Button Functions **************************/
-insertBtn.onclick = () => tryCatch(insertParagraph);
-
-// "Edit"
-document.getElementById("editBtn").onclick = function() {
-    newMsg('sys', 'Please type how you want to edit the above text and press "Send". \n If you want to substitue your original text in Word, select it before you click Send.');
-    resCtrls.style.display = 'none';
-    chatmode = 1;
 }
