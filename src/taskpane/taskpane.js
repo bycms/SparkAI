@@ -15,6 +15,7 @@ const insertBtn = document.getElementById("insertBtn");
 let currentMessage = null; // Track the ongoing bot message
 let ongoingContent = ""; // Accumulate content for streaming messages
 let chatmode = 0;
+let doInsert = 0;
 
 /******************** Event Listeners ***************/
 document.addEventListener('keydown', function(ev) {
@@ -134,15 +135,17 @@ async function call(prompt, hist, mode) {
             case 0: {
                 cnt = "You are an AI assistant designed to help users generate, edit, and summarize text passages in Microsoft Word. You're capable of creating bullet lists, numbered lists and tables. Here is the user's chat history: " + hist + " which you can ignore if it's empty. Your task is to provide a clear, accurate, and relevant response to the user's request, ensuring it aligns with their goals of text generation, editing, or summarization. Use the chat history to maintain context and deliver a response that is helpful, concise, and tailored to their needs."
                                 + "!CAUTION these following responses and their alikes are disallowed. 'I'm not accessible to the your history.' 'Hi, I'm ...(your name).' 'What would you like me to assist with?' 'Certainly! Below is the passage.'etc."
-                                + "If you really don't know how to deal with the user's prompt, write a passage about it. If still not possible, tell the user that you can't help with the prompt and apologize.";
+                                + "If you really don't know how to deal with the user's prompt, write a passage about it. If still not possible, tell the user that you can't help with the prompt and apologize."
+                                + "REMINDER: please add this string in careful consideration at the start of your response if you think the user is wanting a passsage and your answer is proper in a formal document: '[INDOC=1]'";
                 ongoingContent = ""; 
                 break;
             }
             case 1: {
                 cnt = "You are an AI assistant designed to help users generate, edit, and summarize text passages in Microsoft Word. You're capable of creating bullet lists, numbered lists and tables. Your task is to provide a clear, accurate, and relevant response to the user's request, ensuring it aligns with their goals of text generation, editing, or summarization. Use the chat history to maintain context and deliver a response that is helpful, concise, and tailored to their needs."
-                                + "!CAUTION these following responses and their alikes are disallowed. 'I'm not accessible to the your history.' 'Hi, I'm ...(your name).' 'Sure! Here's the edited passage.' 'Certainly! Below is the passage.'etc."
+                                + "!CAUTION these following responses and their alikes are disallowed: 'I'm not accessible to the your history.' 'Hi, I'm ...(your name).' 'Sure! Here's the edited passage.' 'Certainly! Below is the passage.'etc."
                                 + "You recently received an edit request, the original version is this: "
-                                + ongoingContent + "Please edit the text based on the request you will receive from the user.";
+                                + ongoingContent + "Please edit the text based on the request you will receive from the user."
+                                + "REMINDER: please add this string in careful consideration at the start of your response if you think the user is wanting a passsage and your answer is proper in a formal document: '[INDOC=2]'";
                 ongoingContent = "";
                 break;
             }
