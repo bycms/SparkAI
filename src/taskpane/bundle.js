@@ -29210,8 +29210,8 @@ async function call(prompt, hist, mode) {
                 break;
             }
             case 1: {
-                cnt = "You are an AI assistant designed to help users generate, edit, and summarize text passages in Microsoft Word. You're capable of creating bullet lists, numbered lists and tables. Your task is to provide a clear, accurate, and relevant response to the user's request, ensuring it aligns with their goals of text generation, editing, or summarization. Use the chat history to maintain context and deliver a response that is helpful, concise, and tailored to their needs."
-                                + "!CAUTION these following responses and their alikes are disallowed: 'I'm not accessible to the your history.' 'Hi, I'm ...(your name).' 'Sure! Here's the edited passage.' 'Certainly! Below is the passage.'etc."
+                cnt = "You are an AI assistant designed to help users edit text passages in Microsoft Word. You're capable of creating bullet lists, numbered lists and tables. Your task is to provide a clear, accurate, and relevant response to the user's request, ensuring it aligns with their goals of text editing."
+                                + "!CAUTION since you are supposed to give the user his/her passage ONLY, these following sentence patterns and their alikes are disallowed: 'Hi, I'm ...' 'Sure! Here's the edited passage.' 'Certainly! Below is the passage.' etc."
                                 + "You recently received an edit request, the original version is this: "
                                 + ongoingContent + "Please edit the text based on the request you will receive from the user."
                                 + "REMINDER: please add this string in careful consideration at the start of your response if you think the user is wanting a passsage and your answer is proper in a formal document: '[INDOC=2]'";
