@@ -8,10 +8,17 @@
     "axe/forms": [
       "default",
       {
-        "select-name": "off"
+        "select-name": "off",
+        "label": "off"
       }
     ],
-    "css-prefix-order": "off"
+    "css-prefix-order": "off",
+    "axe/keyboard": [
+      "default",
+      {
+        "nested-interactive": "off"
+      }
+    ]
   },
   "browserslist": [
     "defaults",
