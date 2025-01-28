@@ -157,9 +157,9 @@ async function call(prompt, hist, mode) {
                 header: { app_id: APPID },
                 parameter: {
                     chat: {
-                        domain: 'lite',
+                        domain: '4.0Ultra',
                         temperature: 0.6,
-                        max_tokens: 4096,
+                        max_tokens: 8192,
                     },
                 },
                 payload: {
